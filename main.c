@@ -34,11 +34,7 @@ int *initialize_table(int rows, int columns)
   /* Draw the table and fill with 1s and 0s randomly - 1 is a live cell, 0 is a dead cell */
   int table[rows][columns];
   for (int r = 0; r < rows; r++) {
-    for (int c = 0; c < columns; c++) {
-      //if (r == 0 || r == rows - 1 || c == 0 || c == columns - 1) table[r][c] = 2;
-      // ELSE:
-      table[r][c] = rand() % 2;
-    }
+    for (int c = 0; c < columns; c++) table[r][c] = rand() % 2;
   }
 
   /* Put the table array in a buffer */
@@ -71,8 +67,8 @@ void simulate_table()
   buffer = initialize_table(rows, columns);
 
   /* Simulation */
-  /* We need to traverse the buffer to determine cell's state, so we have to determine
-     it's neighbors positions first */
+  /* We need to traverse the buffer to determine the cell's state in next generation, so
+     we have to determine it's neighbors positions first */
   int table[rows][columns];
   int space_between = rows - 2; /* Space between the current cell and it's closest above/below row neighbor */
   while(1) {
@@ -80,26 +76,26 @@ void simulate_table()
     int neighbors, alive_neighbors;
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < columns; c++) {
-        /* This is a copy of buffer, used to print the table in realtime and to store
-           buffer's values before we change them */
+        /* This is a copy of buffer organized in a 2d array table, used to store the buffer's values
+           before we change them and also to print out the table later */
         table[r][c] = buffer[i];
 
         /* Determine how many neighbors the cell has - this is a side effect of not being able to
            create an infinite table and cells in extreme rows/columns have to be treated differently */
-        alive_neighbors = 0;
         if ((r == 0 || r == rows - 1) && (c == 0 || c == columns - 1)) neighbors = 3;
         else if (r == 0 || r == rows - 1 || c == 0 || c == columns - 1) neighbors = 5;
         else neighbors = 8;
 
         /* Determine how many alive neighbors the cell has in order to change it's state in next
            generation */
+        alive_neighbors = 0;
         if (neighbors == 8) {
           /* IF HAS 8 NEIGHBORS */
           if (buffer[i + 1] == 1) alive_neighbors++;
           if (buffer[i - 1] == 1) alive_neighbors++;
           for (int count = 1; count <= 3; count++) {
-            if (buffer[i + (space_between + count)] == 1) alive_neighbors++;
-            if (buffer[i - (space_between + count)] == 1) alive_neighbors++;
+            if (buffer[i + space_between + count] == 1) alive_neighbors++;
+            if (buffer[i - space_between + count] == 1) alive_neighbors++;
           }
         } else if (neighbors == 5) {
           /* IF HAS 5 NEIGHBORS */
@@ -107,21 +103,21 @@ void simulate_table()
             if (buffer[i + 1] == 1) alive_neighbors++;
             if (buffer[i - 1] == 1) alive_neighbors++;
             for (int count = 1; count <= 3; count++) {
-              if (r == 0 && buffer[i + (space_between + count)] == 1) alive_neighbors++;
-              if (r == rows - 1 && buffer[i - (space_between + count)] == 1) alive_neighbors++;
+              if (r == 0 && buffer[i + space_between + count] == 1) alive_neighbors++;
+              if (r == rows - 1 && buffer[i - space_between + count] == 1) alive_neighbors++;
             }
           } else {
             if (c == 0) {
               if (buffer[i + 1] == 1) alive_neighbors++;
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i - (space_between + count)] == 1) alive_neighbors++;
-                if (buffer[i + (space_between + count + 1)] == 1) alive_neighbors++;
+                if (buffer[i - space_between + count] == 1) alive_neighbors++;
+                if (buffer[i + space_between + count + 1] == 1) alive_neighbors++;
               }
             } else if (c == columns - 1) {
               if (buffer[i - 1] == 1) alive_neighbors++;
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i - (space_between + count) + 1] == 1) alive_neighbors++;
-                if (buffer[i + (space_between + count)] == 1) alive_neighbors++;
+                if (buffer[i - space_between + count + 1] == 1) alive_neighbors++;
+                if (buffer[i + space_between + count] == 1) alive_neighbors++;
               }
             }
           }
@@ -131,28 +127,28 @@ void simulate_table()
             if (buffer[i + 1] == 1) alive_neighbors++;
             if (r == 0) {
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i + (space_between + count) + 1] == 1) alive_neighbors++;
+                if (buffer[i + space_between + count + 1] == 1) alive_neighbors++;
               }
             } else {
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i - (space_between + count)] == 1) alive_neighbors++;
+                if (buffer[i - space_between + count] == 1) alive_neighbors++;
               }
             }
           } else if (c == columns - 1) {
             if (buffer[i - 1] == 1) alive_neighbors++;
             if (r == 0) {
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i + (space_between + count)] == 1) alive_neighbors++;
+                if (buffer[i + space_between + count] == 1) alive_neighbors++;
               }
             } else {
               for (int count = 1; count <= 2; count++) {
-                if (buffer[i - (space_between + count) + 1] == 1) alive_neighbors++;
+                if (buffer[i - space_between + count + 1] == 1) alive_neighbors++;
               }
             }
           }
         }
 
-        /* Determine what happens to the cell based on amount of alive neighbors */
+        /* Determine what will happen to the cell in next generation, based on amount of alive neighbors */
         if (buffer[i] == 1) {
           if (alive_neighbors < 2) buffer[i] = 0;
           else if (alive_neighbors > 3) buffer[i] = 0;
