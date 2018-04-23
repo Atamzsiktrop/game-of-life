@@ -67,19 +67,25 @@ void simulate_table()
   buffer = initialize_table(rows, columns);
 
   /* Simulation */
-  /* We need to traverse the buffer to determine the cell's state in next generation, so
-     we have to determine it's neighbors positions first */
   int table[rows][columns];
-  int space_between = rows - 2; /* Space between the current cell and it's closest above/below row neighbor */
   while(1) {
+    /* Delete this later */
+    printf("\n");
+
+    sleep(2);
     int i = 0;
     int neighbors, alive_neighbors;
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < columns; c++) {
-        /* This is a copy of buffer organized in a 2d array table, used to store the buffer's values
-           before we change them and also to print out the table later */
-        table[r][c] = buffer[i];
+    int alive_neighbors_buff[rows * columns]; /* An array to store alive_neighbors relative to buffer */
 
+    /* This is a copy of buffer organized in a 2d array table, used to store the buffer's values
+       before we change them and also to print out the table later */
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < columns; c++, i++) table[r][c] = buffer[i];
+    }
+
+    /* Actual simulation loop */
+    for (int r = 0, i = 0; r < rows; r++) {
+      for (int c = 0; c < columns; c++, i++) {
         /* Determine how many neighbors the cell has - this is a side effect of not being able to
            create an infinite table and cells in extreme rows/columns have to be treated differently */
         if ((r == 0 || r == rows - 1) && (c == 0 || c == columns - 1)) neighbors = 3;
@@ -90,78 +96,74 @@ void simulate_table()
            generation */
         alive_neighbors = 0;
         if (neighbors == 8) {
-          /* IF HAS 8 NEIGHBORS */
-          if (buffer[i + 1] == 1) alive_neighbors++;
-          if (buffer[i - 1] == 1) alive_neighbors++;
-          for (int count = 1; count <= 3; count++) {
-            if (buffer[i + space_between + count] == 1) alive_neighbors++;
-            if (buffer[i - space_between + count] == 1) alive_neighbors++;
+          /* IF 8 NEIGHBORS */
+          if (table[r][c - 1] == 1) alive_neighbors++;
+          if (table[r][c + 1] == 1) alive_neighbors++;
+          for (int move = -1; move <= 1; move++) {
+            if (table[r - 1][c + move] == 1) alive_neighbors++;
+            if (table[r + 1][c + move] == 1) alive_neighbors++;
           }
         } else if (neighbors == 5) {
-          /* IF HAS 5 NEIGHBORS */
-          if (r == 0 || r == rows - 1) {
-            if (buffer[i + 1] == 1) alive_neighbors++;
-            if (buffer[i - 1] == 1) alive_neighbors++;
-            for (int count = 1; count <= 3; count++) {
-              if (r == 0 && buffer[i + space_between + count] == 1) alive_neighbors++;
-              if (r == rows - 1 && buffer[i - space_between + count] == 1) alive_neighbors++;
+          /* IF 5 NEIGHBORS */
+          if (r == 0) {
+            if (table[r][c - 1] == 1) alive_neighbors++;
+            if (table[r][c + 1] == 1) alive_neighbors++;
+            for (int move = -1; move <= 1; move++)
+              if (table[r + 1][c + move] == 1) alive_neighbors++;
+          } else if (r == rows - 1) {
+            if (table[r][c - 1] == 1) alive_neighbors++;
+            if (table[r][c + 1] == 1) alive_neighbors++;
+            for (int move = -1; move <= 1; move++)
+              if (table[r - 1][c + move] == 1) alive_neighbors++;
+          } else if (c == 0) {
+            if (table[r][c + 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++) {
+              if (table[r - 1][c + move] == 1) alive_neighbors++;
+              if (table[r + 1][c + move] == 1) alive_neighbors++;
             }
-          } else {
-            if (c == 0) {
-              if (buffer[i + 1] == 1) alive_neighbors++;
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i - space_between + count] == 1) alive_neighbors++;
-                if (buffer[i + space_between + count + 1] == 1) alive_neighbors++;
-              }
-            } else if (c == columns - 1) {
-              if (buffer[i - 1] == 1) alive_neighbors++;
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i - space_between + count + 1] == 1) alive_neighbors++;
-                if (buffer[i + space_between + count] == 1) alive_neighbors++;
-              }
+          } else if (c == columns - 1) {
+            if (table[r][c - 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++) {
+              if (table[r - 1][c - move] == 1) alive_neighbors++;
+              if (table[r + 1][c - move] == 1) alive_neighbors++;
             }
           }
         } else if (neighbors == 3) {
-          /* IF HAS 3 NEIGHBORS */
-          if (c == 0) {
-            if (buffer[i + 1] == 1) alive_neighbors++;
-            if (r == 0) {
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i + space_between + count + 1] == 1) alive_neighbors++;
-              }
-            } else {
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i - space_between + count] == 1) alive_neighbors++;
-              }
-            }
-          } else if (c == columns - 1) {
-            if (buffer[i - 1] == 1) alive_neighbors++;
-            if (r == 0) {
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i + space_between + count] == 1) alive_neighbors++;
-              }
-            } else {
-              for (int count = 1; count <= 2; count++) {
-                if (buffer[i - space_between + count + 1] == 1) alive_neighbors++;
-              }
-            }
+          /* IF 3 NEIGHBORS */
+          if (r == 0 && c == 0) {
+            if (table[r][c + 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++)
+              if (table[r + 1][c + move] == 1) alive_neighbors++;
+          } else if (r == 0 && c == columns - 1) {
+            if (table[r][c - 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++)
+              if (table[r + 1][c - move] == 1) alive_neighbors++;
+          } else if (r == rows - 1 && c == 0) {
+            if (table[r][c + 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++)
+              if (table[r - 1][c + move] == 1) alive_neighbors++;
+          } else if (r == rows - 1 && c == columns - 1) {
+            if (table[r][c - 1] == 1) alive_neighbors++;
+            for (int move = 0; move <= 1; move++)
+              if (table[r - 1][c - move] == 1) alive_neighbors++;
           }
         }
 
-        /* Determine what will happen to the cell in next generation, based on amount of alive neighbors */
-        if (buffer[i] == 1) {
-          if (alive_neighbors < 2) buffer[i] = 0;
-          else if (alive_neighbors > 3) buffer[i] = 0;
-        } else {
-          if (alive_neighbors == 3) buffer[i] = 1;
-        }
+        /* Store alive_neighbors in the array relative to buffer */
+        alive_neighbors_buff[i] = alive_neighbors;
 
         /* Print out the simulation */
-        sleep(2);
-        system("clear");
         printf("%d ", table[r][c]);
         if (c == columns - 1) printf("\n");
-        i++;
+      }
+    }
+
+    /* Determine what will happen to the cell in next generation, based on amount of alive neighbors */
+    for (i = 0; i < (rows * columns); i++) {
+      if (buffer[i] == 1) {
+        if (alive_neighbors_buff[i] < 2 || alive_neighbors_buff[i] > 3) buffer[i] = 0;
+      } else if (buffer[i] == 0) {
+        if (alive_neighbors_buff[i] == 3) buffer[i] = 1;
       }
     }
   }
