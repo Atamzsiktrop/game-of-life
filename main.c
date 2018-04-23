@@ -69,10 +69,6 @@ void simulate_table()
   /* Simulation */
   int table[rows][columns];
   while(1) {
-    /* Delete this later */
-    printf("\n");
-
-    sleep(2);
     int i = 0;
     int neighbors, alive_neighbors;
     int alive_neighbors_buff[rows * columns]; /* An array to store alive_neighbors relative to buffer */
@@ -153,7 +149,8 @@ void simulate_table()
         alive_neighbors_buff[i] = alive_neighbors;
 
         /* Print out the simulation */
-        printf("%d ", table[r][c]);
+        if (table[r][c] == 1) printf("%d ", table[r][c]);
+        else printf("  ");
         if (c == columns - 1) printf("\n");
       }
     }
@@ -166,6 +163,8 @@ void simulate_table()
         if (alive_neighbors_buff[i] == 3) buffer[i] = 1;
       }
     }
+    sleep(2);
+    system("clear");
   }
 
   /* Free memory */
