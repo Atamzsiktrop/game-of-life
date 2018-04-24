@@ -4,7 +4,9 @@
 #include <unistd.h>
 
 struct board_parameters define_board_parameters();
-int *initialize_board(int rows, int columns);
+int *initialize_board_buffer(int rows, int columns);
+void next_generation(int alive_neighbors_array[],
+                     int *board_buffer, int size);
 void simulate_board();
 
 int main()
@@ -31,12 +33,14 @@ struct board_parameters define_board_parameters()
 
 /****/
 
-/* This function will use the board_parameters struct to create a desired board */
-int *initialize_board(int rows, int columns)
+/* This function will use the board_parameters struct to allocate space
+   in memory for future board creation and also initialize live cells */
+int *initialize_board_buffer(int rows, int columns)
 {
   /* Initialize random numbers generator */
   srand(time(NULL));
 
+  /*? Separate function ?*/
   /* Draw the board and fill it with 1s and 0s randomly
      1 is a live cell, 0 is a dead cell */
   int board[rows][columns];
@@ -44,15 +48,38 @@ int *initialize_board(int rows, int columns)
     for (int c = 0; c < columns; c++)
       board[r][c] = rand() % 2;
 
-  /* Put the board array in a buffer - dynamically allocated memory space */
-  int *buffer;
-  buffer = (int*) malloc(rows * columns);
+  /* Put the board array in a board_buffer - dynamically allocated memory space */
+  int *board_buffer;
+  int size = rows * columns;
+  board_buffer = (int*) malloc(size);
   int i = 0;
   for (int r = 0; r < rows; r++)
     for (int c = 0; c < columns; c++, i++) 
-      buffer[i] = board[r][c];
+      board_buffer[i] = board[r][c];
 
-  return buffer;
+  return board_buffer;
+}
+
+/****/
+
+/* Determine what will happen to the cell in next generation
+   based on amount of alive neighbors and rules of the game */
+void next_generation(int alive_neighbors_array[],
+                     int *board_buffer, int size)
+{
+  for (int i = 0; i < size; i++)
+    {
+      if (board_buffer[i] == 1)
+        {
+          if (alive_neighbors_array[i] < 2 || alive_neighbors_array[i] > 3)
+            board_buffer[i] = 0;
+        }
+      else if (board_buffer[i] == 0)
+        {
+          if (alive_neighbors_array[i] == 3)
+            board_buffer[i] = 1;
+        }
+    }
 }
 
 /****/
@@ -60,37 +87,40 @@ int *initialize_board(int rows, int columns)
 /* The whole game is simulated in this function that runs in a loop */
 void simulate_board()
 {
-  /* Load the board parameters */
+  /* Load the board parameters and initialize it */
   struct board_parameters board_parameters;
   board_parameters = define_board_parameters();
   int rows = board_parameters.rows;
   int columns = board_parameters.columns;
-
-  /* Access the buffer */
-  int *buffer;
-  buffer = initialize_board(rows, columns);
-
-  /* Simulation */
   int board[rows][columns];
+
+  /* Access the board_board_buffer */
+  int *board_buffer;
+  int size = rows * columns;
+  board_buffer = initialize_board_buffer(rows, columns);
+
+  /* An array that will hold alive_neighbors relative to board_buffer[i] */
+  int alive_neighbors_array[size];
+
+  /*? Find a decent exit condition. As of right now, Ctrl+C ?*/
   while(1)
     {
       int i = 0;
-      int neighbors, alive_neighbors;
-      /* An array to store alive_neighbors relative to buffer[i] */
-      int alive_neighbors_buff[rows * columns]; 
+      int alive_neighbors;
 
-      /* This is a copy of buffer organized in a 2d array board,
-         used to store the buffer's value before we change them
+      /* This is a copy of board_buffer organized in a 2d array board,
+         used to store the board_buffer's value before we change them
          and also to print out the board later */
       for (int r = 0; r < rows; r++) 
         for (int c = 0; c < columns; c++, i++) 
-          board[r][c] = buffer[i];
+          board[r][c] = board_buffer[i];
 
       /* Actual simulation loop */
       for (int r = 0, i = 0; r < rows; r++)
         {
         for (int c = 0; c < columns; c++, i++)
           {
+            /*? Separate function ?*/
             /* Determine how many alive neighbors the cell has in order to
                change it's state in next generation.
                This is done by comparing adjacent rows and columns to 1 */
@@ -103,8 +133,8 @@ void simulate_board()
                         && board[r + r_move][c + c_move] == 1)
                       alive_neighbors++;
 
-            /* Store alive_neighbors in the array relative to buffer */
-            alive_neighbors_buff[i] = alive_neighbors;
+            /* Store alive_neighbors in alive_neighbors_array relative to board_buffer */
+            alive_neighbors_array[i] = alive_neighbors;
 
             /* Print out the simulation */
             if (board[r][c] == 1)
@@ -116,29 +146,18 @@ void simulate_board()
           }
         }
 
-      /* Determine what will happen to the cell in next generation
-         based on amount of alive neighbors */
-      for (i = 0; i < rows * columns; i++)
-        {
-          if (buffer[i] == 1)
-            {
-              if (alive_neighbors_buff[i] < 2 || alive_neighbors_buff[i] > 3)
-                buffer[i] = 0;
-            }
-          else if (buffer[i] == 0)
-            {
-              if (alive_neighbors_buff[i] == 3)
-                buffer[i] = 1;
-            }
-        }
+      /* Simulate next generation */
+      next_generation(alive_neighbors_array,
+                      board_buffer, size);
 
       /* "Update" method */
+      /*? Eventually will move to GUI ?*/
       sleep(2);
       system("clear");
     }
 
   /* Free memory */
-  free(buffer);
+  free(board_buffer);
 }
 
 /****/
