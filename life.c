@@ -48,7 +48,7 @@ int *initialize_board_buffer(int rows, int columns)
     for (int c = 0; c < columns; c++)
       board[r][c] = rand() % 2;
 
-  /* Put the board array in a board_buffer - dynamically allocated memory space */
+  /* Put the board array in board_buffer - dynamically allocated memory space */
   int *board_buffer;
   int size = rows * columns;
   board_buffer = (int*) malloc(size);
@@ -96,10 +96,10 @@ void simulate_board()
 
   /* Access the board_board_buffer */
   int *board_buffer;
-  int size = rows * columns;
   board_buffer = initialize_board_buffer(rows, columns);
 
   /* An array that will hold alive_neighbors relative to board_buffer[i] */
+  int size = rows * columns;
   int alive_neighbors_array[size];
 
   /*? Find a decent exit condition. As of right now, Ctrl+C ?*/
@@ -133,7 +133,7 @@ void simulate_board()
                         && board[r + r_move][c + c_move] == 1)
                       alive_neighbors++;
 
-            /* Store alive_neighbors in alive_neighbors_array relative to board_buffer */
+            /* Store alive_neighbors in alive_neighbors_array relative to board_buffer[i] */
             alive_neighbors_array[i] = alive_neighbors;
 
             /* Print out the simulation */
