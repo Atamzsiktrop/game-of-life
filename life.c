@@ -100,7 +100,7 @@ void simulate_board()
   int columns = board_parameters.columns;
   int board[rows][columns];
 
-  /* Access the board_board_buffer */
+  /* Access the board_buffer */
   int *board_buffer;
   board_buffer = initialize_board_buffer(rows, columns);
 
@@ -116,7 +116,7 @@ void simulate_board()
 
       /*
        * This is a copy of board_buffer organized in a 2d array board,
-       * used to store the board_buffer's value before we change them
+       * used to store the board_buffer[i] value before we change them
        * and also to print out the board later
        */
       for (int r = 0; r < rows; r++) 
