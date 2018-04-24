@@ -7,6 +7,8 @@ struct table_parameters define_table_parameters();
 int *initialize_table(int rows, int columns);
 void simulate_table();
 
+/****/
+
 /* To make a table we need to know how many rows and columns it should have */
 struct table_parameters {
   int rows;
@@ -37,7 +39,7 @@ int *initialize_table(int rows, int columns)
     for (int c = 0; c < columns; c++) table[r][c] = rand() % 2;
   }
 
-  /* Put the table array in a buffer */
+  /* Put the table array in a buffer - dynamically allocated memory space */
   int *buffer;
   buffer = (int*) malloc(rows * columns);
   int i = 0;
@@ -71,7 +73,7 @@ void simulate_table()
   while(1) {
     int i = 0;
     int neighbors, alive_neighbors;
-    int alive_neighbors_buff[rows * columns]; /* An array to store alive_neighbors relative to buffer */
+    int alive_neighbors_buff[rows * columns]; /* An array to store alive_neighbors relative to buffer[i] */
 
     /* This is a copy of buffer organized in a 2d array table, used to store the buffer's values
        before we change them and also to print out the table later */
@@ -149,20 +151,22 @@ void simulate_table()
         alive_neighbors_buff[i] = alive_neighbors;
 
         /* Print out the simulation */
-        if (table[r][c] == 1) printf("%d ", table[r][c]);
+        if (table[r][c] == 1) printf("* ");
         else printf("  ");
         if (c == columns - 1) printf("\n");
       }
     }
 
     /* Determine what will happen to the cell in next generation, based on amount of alive neighbors */
-    for (i = 0; i < (rows * columns); i++) {
+    for (i = 0; i < rows * columns; i++) {
       if (buffer[i] == 1) {
         if (alive_neighbors_buff[i] < 2 || alive_neighbors_buff[i] > 3) buffer[i] = 0;
       } else if (buffer[i] == 0) {
         if (alive_neighbors_buff[i] == 3) buffer[i] = 1;
       }
     }
+
+    /* "Update" method */
     sleep(2);
     system("clear");
   }
