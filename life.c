@@ -88,9 +88,9 @@ void simulate_board()
 
       /* Actual simulation loop */
       for (int r = 0, i = 0; r < rows; r++)
+        {
         for (int c = 0; c < columns; c++, i++)
           {
-
             /* Determine how many alive neighbors the cell has in order to
                change it's state in next generation.
                This is done by comparing adjacent rows and columns to 1 */
@@ -114,6 +114,7 @@ void simulate_board()
             if (c == columns - 1)
               printf("\n");
           }
+        }
 
       /* Determine what will happen to the cell in next generation
          based on amount of alive neighbors */
