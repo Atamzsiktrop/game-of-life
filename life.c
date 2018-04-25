@@ -165,7 +165,7 @@ void print_board(int *board_buffer, int rows, int columns)
           printf("\n");
       }
 
-  sleep(2);
+  sleep(1);
   system("clear");
 }
 
