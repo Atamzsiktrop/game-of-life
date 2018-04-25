@@ -3,6 +3,10 @@
 #include <time.h>
 #include <unistd.h>
 
+/* This is a normal comment, usually explaining technical stuff. */
+/*? This type of a comment is my development thoughts. ?*/
+/****/ /* This is used to separate functions. */
+
 struct board_parameters define_board_parameters();
 int *allocate_board_buffer(int size);
 void next_generation(int alive_neighbors_array[],
@@ -94,7 +98,10 @@ void simulate_board()
   int size = rows * columns;
   board_buffer = allocate_board_buffer(size);
 
-  /* An array that will hold alive_neighbors relative to board_buffer[i]. */
+  /*
+   * An array that will hold alive_neighbors relative to board_buffer[i].
+   * This is later used to compare the values for next generation calculation.
+   */
   int alive_neighbors_array[size];
 
   /*? Find a decent exit condition. As of right now, Ctrl+C. ?*/
@@ -108,7 +115,7 @@ void simulate_board()
        * used to store the board_buffer[i] value before we change them
        * and also to print out the board later.
        * This is necessary now and not in the next loop cause we need
-       * to know values of the buffer ahead of the r,c loop.
+       * to know values of the whole buffer ahead of the r,c loop.
        */
       for (int r = 0; r < rows; r++) 
         for (int c = 0; c < columns; c++, i++) 
