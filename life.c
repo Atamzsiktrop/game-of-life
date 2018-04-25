@@ -10,7 +10,10 @@
 struct board_parameters define_board_parameters();
 int *allocate_board_buffer(int size);
 int *count_alive_neighbors(int *board_buffer,
-                      int rows, int columns, int size);
+                           int rows, int columns, int size);
+void next_generation(int *alive_neighbors_buffer,
+                     int *board_buffer, int size);
+void print_board(int *board_buffer, int rows, int columns);
 void game_loop();
 
 int main()
@@ -60,16 +63,13 @@ int *allocate_board_buffer(int size)
 
 /****/
 
+/*
+ * Counts alive neighbors of a cell, then passes the values to a function
+ * that will determine what happens to the cell in the next generation.
+ */
 int *count_alive_neighbors(int *board_buffer,
-                      int rows, int columns, int size)
+                           int rows, int columns, int size)
 {
-  /*
-   * Buffer that will hold alive_neighbors relative to board_buffer[i].
-   * This is later used to compare the values for next generation calculation.
-   */
-  int *alive_neighbors_buffer;
-  alive_neighbors_buffer = malloc(sizeof(int) * size);
-
   /*
    * This is a copy of board_buffer organized in a 2d array board,
    * used to store the board_buffer[i] value before we change them
@@ -82,12 +82,19 @@ int *count_alive_neighbors(int *board_buffer,
     for (int c = 0; c < columns; c++, i++)
       board[r][c] = board_buffer[i];
 
+  /*
+   * Buffer that will hold alive neighbors count relative to the cell.
+   * This is later used to compare the values for next generation calculation.
+   */
+  int *alive_neighbors_buffer;
+  alive_neighbors_buffer = malloc(sizeof(int) * size);
+
   for (int r = 0, i = 0; r < rows; r++)
     {
       for (int c = 0; c < columns; c++, i++)
         {
           /*
-           * Determine how many alive neighbors the cell has in order to
+           * Count how many alive neighbors the cell has in order to
            * change it's state in next generation.
            * This is done by comparing adjacent rows and columns to 1.
            */
@@ -113,13 +120,13 @@ int *count_alive_neighbors(int *board_buffer,
 
 /****/
 
+/*
+ * Determine what will happen to the cell in next generation
+ * based on amount of alive neighbors and rules of the game.
+ */
 void next_generation(int *alive_neighbors_buffer,
                      int *board_buffer, int size)
 {
-  /*
-   * Determine what will happen to the cell in next generation
-   * based on amount of alive neighbors and rules of the game.
-   */
   for (int i = 0; i < size; i++)
     {
       if (board_buffer[i] == 1)
@@ -133,13 +140,41 @@ void next_generation(int *alive_neighbors_buffer,
             board_buffer[i] = 1;
         }
     }
+
+  /* Free memory. */
+  free(alive_neighbors_buffer);
 }
 
 /****/
 
-/* The game runs in this loop. */
+/*? Make this function work with only board_buffer. ?*/
+/*? Make a graphical version, move away from terminal. ?*/
+/* Print the board/simulation. */
+void print_board(int *board_buffer, int rows, int columns)
+{
+  int board[rows][columns], i;
+  for (int r = 0, i = 0; r < rows; r++)
+    for (int c = 0; c < columns; c++, i++)
+      {
+        board[r][c] = board_buffer[i];
+        if (board[r][c] == 1)
+          printf("* ");
+        else
+          printf("  ");
+        if (c == columns - 1)
+          printf("\n");
+      }
+
+  sleep(2);
+  system("clear");
+}
+
+/****/
+
+/* The game runs in this function. */
 void game_loop()
 {
+  /* Access the board_parameters struct. */
   struct board_parameters board_parameters;
   board_parameters = define_board_parameters();
   int rows = board_parameters.rows;
@@ -151,28 +186,13 @@ void game_loop()
   board_buffer = allocate_board_buffer(size);
 
   /*? Find a decent exit condition. As of right now, Ctrl+C. ?*/
+  /* Simulation loop. */
   while(1)
     {
+      print_board(board_buffer, rows, columns);
       next_generation(count_alive_neighbors(board_buffer,
-                                       rows, columns, size),
+                                            rows, columns, size),
                       board_buffer, size);
-
-      /*? Separate function. ?*/
-      /* Print out the simulation. */
-      for (int i = 0; i < size; i++)
-        {
-          if (board_buffer[i] == 1)
-            printf("* ");
-          else
-            printf("  ");
-          if (i == (i + 1) * (columns - 1))
-            printf("\n");
-        }
-
-      /* "Update" method. */
-      /*? Eventually will move to GUI. ?*/
-      sleep(2);
-      system("clear");
     }
 
   /* Free memory. */
