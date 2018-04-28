@@ -103,9 +103,8 @@ int *count_alive_neighbors(int *board_buffer,
             for (int c_move = -1; c_move <= 1; c_move++)
               if (!(r + r_move == r && c + c_move == c)
                   && (r + r_move >= 0 && r + r_move <= rows - 1)
-                  && (c + c_move >= 0 && c + c_move <= columns - 1)
-                  && board[r + r_move][c + c_move] == 1)
-                alive_neighbors++;
+                  && (c + c_move >= 0 && c + c_move <= columns - 1))
+                alive_neighbors += board[r + r_move][c + c_move];
 
           /*
            * Store alive_neighbors in alive_neighbors_buffer
