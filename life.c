@@ -55,8 +55,20 @@ int *allocate_board_buffer(int size)
    * with random 0s and 1s.
    */
   srand(time(NULL));
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < size; i++)    
     board_buffer[i] = rand() % 2;
+
+
+  /* Make a glider for testing */
+  /* 30x30 board */
+  /*
+  board_buffer[5] = 1;
+  board_buffer[33] = 1;
+  board_buffer[35] = 1;
+  board_buffer[64] = 1;
+  board_buffer[65] = 1;
+  */
+
 
   return board_buffer;
 }
@@ -79,8 +91,12 @@ int *count_alive_neighbors(int *board_buffer,
    */
   int board[rows][columns], i;
   for (int r = 0, i = 0; r < rows; r++)
+    {
     for (int c = 0; c < columns; c++, i++)
+      {
       board[r][c] = board_buffer[i];
+      }
+    }
 
   /*
    * Buffer that will hold alive neighbors count relative to the cell.
@@ -96,15 +112,20 @@ int *count_alive_neighbors(int *board_buffer,
           /*
            * Count how many alive neighbors the cell has in order to
            * change it's state in next generation.
-           * This is done by comparing adjacent rows and columns to 1.
            */
           int alive_neighbors = 0;
-          for (int r_move = -1; r_move <= 1; r_move++)
-            for (int c_move = -1; c_move <= 1; c_move++)
-              if (!(r + r_move == r && c + c_move == c)
-                  && (r + r_move >= 0 && r + r_move <= rows - 1)
-                  && (c + c_move >= 0 && c + c_move <= columns - 1))
-                alive_neighbors += board[r + r_move][c + c_move];
+          for (int r_move = -1; r_move < 2; r_move++)
+            {
+            for (int c_move = -1; c_move < 2; c_move++)
+              {
+                if (!(r + r_move == r && c + c_move == c))
+                  {
+                    int row = (r + r_move + rows) % rows;
+                    int col = (c + c_move + columns) % columns;
+                    alive_neighbors += board[row][col];
+                  }
+              }
+            }
 
           /*
            * Store alive_neighbors in alive_neighbors_buffer
@@ -153,6 +174,7 @@ void print_board(int *board_buffer, int rows, int columns)
 {
   int board[rows][columns], i;
   for (int r = 0, i = 0; r < rows; r++)
+    {
     for (int c = 0; c < columns; c++, i++)
       {
         board[r][c] = board_buffer[i];
@@ -163,8 +185,9 @@ void print_board(int *board_buffer, int rows, int columns)
         if (c == columns - 1)
           printf("\n");
       }
+    }
 
-  sleep(1);
+  usleep(100000);
   system("clear");
 }
 
