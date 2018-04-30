@@ -55,20 +55,8 @@ int *allocate_board_buffer(int size)
    * with random 0s and 1s.
    */
   srand(time(NULL));
-  for (int i = 0; i < size; i++)    
+  for (int i = 0; i < size; i++)
     board_buffer[i] = rand() % 2;
-
-
-  /* Make a glider for testing */
-  /* 30x30 board */
-  /*
-  board_buffer[5] = 1;
-  board_buffer[33] = 1;
-  board_buffer[35] = 1;
-  board_buffer[64] = 1;
-  board_buffer[65] = 1;
-  */
-
 
   return board_buffer;
 }
