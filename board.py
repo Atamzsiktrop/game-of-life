@@ -8,7 +8,7 @@ class Board:
         self.board = [[" " for c in range((cols + 2))] for r in range(rows + 2)]
 
         # Initialize board borders:
-        self.borders = [ "─", "│", "┌", "┐", "└", "┘" ]
+        self.borders = [ "─", "│", "┌", "┐", "└", "┘" ] # TODO: move this to definitions file
         self.cstart, self.cend = 1, len(self.board[0]) - 1
         self.rstart, self.rend = 1, len(self.board) - 1
         # Horizontal

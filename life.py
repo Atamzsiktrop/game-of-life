@@ -13,16 +13,14 @@ class Life:
         self.acells = [[0 for c in range(cols)] for r in range(rows)]
 
     def count_neighbors(self):
-        self.acells = self.cells.copy()
-
         for r in range(len(self.cells)):
             for c in range(len(self.cells[0])):
                 alive_neighbors = 0
                 for r_move in range(-1, 2):
                     for c_move in range(-1, 2):
                         if not (r + r_move == r and c + c_move == c):
-                            r_curr = (r + r_move + self.rows) % self.rows;
-                            c_curr = (c + c_move + self.cols) % self.cols;
+                            r_curr = (r + r_move + self.rows) % self.rows
+                            c_curr = (c + c_move + self.cols) % self.cols
                             alive_neighbors += self.cells[r_curr][c_curr]
                 self.acells[r][c] = alive_neighbors
 
@@ -39,6 +37,9 @@ class Life:
 
     def get_cells(self):
         return self.cells
+
+    def get_acells(self):
+        return self.acells
 
     def get_rows(self):
         return self.rows
